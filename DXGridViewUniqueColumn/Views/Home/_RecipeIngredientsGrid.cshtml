@@ -1,0 +1,67 @@
+﻿@model System.Collections.IEnumerable
+
+@{
+    var grid = Html.DevExpress().GridView(settings =>
+    {
+        settings.Name = "RecipeIngredientsGrid";
+        settings.Width = Unit.Percentage(100);
+
+        settings.KeyFieldName = "Id";
+        settings.CallbackRouteValues = new { Controller = "Recipes", Action = "RecipeIngredientsGrid", recipeId = ViewData["recipeId"] };
+        settings.SettingsEditing.Mode = GridViewEditingMode.Batch;
+        settings.SettingsEditing.BatchUpdateRouteValues = new { Controller = "Recipes", Action = "RecipeIngredientsBatchUpdate", recipeId = ViewData["recipeId"] };
+        settings.SettingsEditing.BatchEditSettings.HighlightDeletedRows = false;
+
+        settings.Toolbars.Add(tb =>
+        {
+            tb.Enabled = true;
+            tb.Position = GridToolbarPosition.Top;
+            tb.SettingsAdaptivity.Enabled = true;
+            tb.SettingsAdaptivity.EnableCollapseRootItemsToIcons = true;
+
+            tb.Items.Add(GridViewToolbarCommand.New);
+            tb.Items.Add(GridViewToolbarCommand.Edit);
+            tb.Items.Add(GridViewToolbarCommand.Delete);
+        });
+
+        settings.SettingsPager.Visible = true;
+        settings.SettingsBehavior.AllowFocusedRow = true;
+        settings.Settings.ShowHeaderFilterButton = true;
+        settings.SettingsContextMenu.Enabled = true;
+        settings.Settings.ShowStatusBar = GridViewStatusBarMode.Hidden;
+
+        settings.Columns.Add(column =>
+        {
+            column.FieldName = "IngredientId";
+            column.Caption = "Ingredient";
+            column.EditorProperties().ComboBox(combo =>
+            {
+                combo.ValueField = "Id";
+                combo.TextField = "Name";
+                combo.ValueType = typeof(int);
+                combo.BindList(DXGridViewUniqueColumn.Models.Data.Ingredients);
+                combo.ValidationSettings.Display = Display.Dynamic;
+            });
+        });
+
+        settings.Columns.Add(column =>
+        {
+            column.FieldName = "Weight";
+            column.EditorProperties().SpinEdit(sp =>
+            {
+                sp.MaxValue = int.MaxValue;
+                sp.Increment = 0.1M;
+            });
+        });
+
+        settings.ClientSideEvents.BeginCallback = "recipeIngredientsHandlers.onBeginCallback";
+        settings.ClientSideEvents.EndCallback = "recipeIngredientsHandlers.onEndCallback";
+        settings.ClientSideEvents.BatchEditRowValidating = "recipeIngredientsHandlers.batchEditRowValidating";
+    });
+
+    if (ViewData["EditError"] != null)
+    {
+        grid.SetEditErrorText((string)ViewData["EditError"]);
+    }
+}
+@grid.Bind(Model).GetHtml()

@@ -1,0 +1,50 @@
+﻿@model DXGridViewUniqueColumn.Models.Recipe
+
+@Html.DevExpress().FormLayout(form =>
+{
+    form.Name = "EditForm";
+    form.Width = Unit.Percentage(100);
+
+    form.Items.Add(m => m.Id);
+    form.Items.Add(m => m.Name);
+
+    var group = form.Items.AddGroupItem(settings =>
+    {
+        settings.Caption = "Recipe ingredients";
+    });
+
+    var recipeIngredientsField = group.Items.Add(m => m.RecipeIngredients);
+    recipeIngredientsField.ShowCaption = DefaultBoolean.False;
+    recipeIngredientsField.SetNestedContent(() =>
+    {
+        Html.RenderAction("RecipeIngredientsGrid", new { recipeId = Model.Id });
+    });
+
+    form.Items.AddEmptyItem();
+    form.Items.Add(i =>
+    {
+        i.ColSpan = 1;
+        i.ShowCaption = DefaultBoolean.False;
+        i.HorizontalAlign = FormLayoutHorizontalAlign.Right;
+        i.SetNestedContent(() =>
+        {
+            Html.DevExpress().Button(button =>
+            {
+                button.Name = "Update";
+                button.Text = "Update";
+                button.RenderMode = ButtonRenderMode.Link;
+                button.ClientSideEvents.Click = "buttonHandlers.update";
+                button.Styles.Style.Paddings.PaddingRight = 10;
+            }).Render();
+            Html.DevExpress().Button(button =>
+            {
+                button.Name = "Cancel";
+                button.Text = "Cancel";
+                button.RenderMode = ButtonRenderMode.Link;
+                button.ClientSideEvents.Click = "buttonHandlers.cancel";
+            }).Render();
+        });
+    });
+
+}).Bind(Model).GetHtml()
+

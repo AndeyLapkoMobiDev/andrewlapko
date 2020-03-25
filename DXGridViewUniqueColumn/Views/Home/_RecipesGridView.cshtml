@@ -1,0 +1,59 @@
+@using DXGridViewUniqueColumn.Models
+
+@{
+    var grid = Html.DevExpress().GridView(settings =>
+    {
+        settings.Name = "RecipesGrid";
+        settings.Width = Unit.Percentage(100);
+
+        settings.KeyFieldName = "Id";
+        settings.CallbackRouteValues = new { Controller = "Home", Action = "RecipesGridView" };
+        settings.SettingsEditing.AddNewRowRouteValues = new { Controller = "Home", Action = "AddRecipe" };
+        settings.SettingsEditing.UpdateRowRouteValues = new { Controller = "Home", Action = "UpdateRecipe" };
+        settings.SettingsEditing.DeleteRowRouteValues = new { Controller = "Home", Action = "DeleteRecipe" };
+        settings.SettingsEditing.Mode = GridViewEditingMode.PopupEditForm;
+        settings.SettingsBehavior.ConfirmDelete = true;
+
+        settings.Toolbars.Add(tb =>
+        {
+            tb.Enabled = true;
+            tb.Position = GridToolbarPosition.Top;
+            tb.SettingsAdaptivity.Enabled = true;
+            tb.SettingsAdaptivity.EnableCollapseRootItemsToIcons = true;
+
+            tb.Items.Add(GridViewToolbarCommand.New);
+            tb.Items.Add(GridViewToolbarCommand.Edit);
+            tb.Items.Add(GridViewToolbarCommand.Delete);
+        });
+
+        settings.SettingsPager.Visible = true;
+        settings.SettingsBehavior.AllowFocusedRow = true;
+        settings.Settings.ShowHeaderFilterButton = true;
+        settings.SettingsContextMenu.Enabled = true;
+
+        settings.Columns.Add(column =>
+        {
+            column.FieldName = "Id";
+            column.ReadOnly = true;
+            column.EditFormSettings.Visible = DefaultBoolean.False;
+            column.SettingsHeaderFilter.Mode = GridHeaderFilterMode.CheckedList;
+        });
+
+        settings.Columns.Add(column =>
+        {
+            column.FieldName = "Name";
+            column.SettingsHeaderFilter.Mode = GridHeaderFilterMode.CheckedList;
+        });
+
+        settings.SetEditFormTemplateContent(c =>
+        {
+            Html.RenderPartial("_RecipeEditForm", c.Grid.IsNewRowEditing ? new Recipe() : c.Grid.GetRow(c.VisibleIndex) as Recipe);
+        });
+    });
+
+    if (ViewData["EditError"] != null)
+    {
+        grid.SetEditErrorText((string)ViewData["EditError"]);
+    }
+}
+@grid.Bind(Model).GetHtml()

@@ -1,0 +1,24 @@
+
+<script>
+    var buttonHandlers = {
+        update: function (s, e) {
+            RecipeIngredientsGrid.batchEditApi.HasChanges() ? RecipeIngredientsGrid.UpdateEdit() : RecipesGrid.UpdateEdit();
+        },
+        cancel: function (s, e) { RecipesGrid.CancelEdit(); }
+    };
+
+    var recipeIngredientsHandlers = {
+        onBeginCallback: function (s, e) {
+            e.customArgs['Name'] = Name.GetValue();
+        },
+        onEndCallback: function (s, e) {
+            RecipesGrid.CancelEdit();
+        },
+        batchEditRowValidating: function (s, e) {
+            e.validationInfo[0].isValid = false;
+        },
+    }
+
+</script>
+
+@Html.Action("RecipesGridView")
